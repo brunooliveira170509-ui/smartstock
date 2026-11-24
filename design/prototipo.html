@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>SmartStock — Protótipo (Bruno de Oliveira)</title>
+<style>
+:root{--pri:#0F766E;--pri-d:#134E4A;--pri-l:#CCFBF1;--acc:#F59E0B;--acc-l:#FEF3C7;--ink:#1E293B;--mut:#64748B;--line:#E5E7EB;--bg:#F6F7F5;--ok:#15803D;--ok-l:#DCFCE7;--bad:#B91C1C;--bad-l:#FEE2E2}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Poppins,sans-serif;color:var(--ink);font-size:14px;background:var(--bg)}
+.screen{display:none;width:1440px;height:900px;overflow:hidden;position:relative;flex-direction:column;background:var(--bg)}
+.screen.active{display:flex}
+/* topbar */
+.nav{height:72px;background:var(--pri-d);display:flex;align-items:center;padding:0 40px;gap:36px;flex:none}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:19px}
+.brand b{width:36px;height:36px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--pri-d)}
+.tabs{display:flex;gap:6px;margin-left:24px}
+.tabs a{color:#99F6E4;text-decoration:none;font-weight:500;padding:9px 16px;border-radius:99px;white-space:nowrap}
+.tabs a.on{background:#fff;color:var(--pri-d);font-weight:600}
+.me{margin-left:auto;display:flex;align-items:center;gap:14px;color:#fff}
+.me .bel{width:38px;height:38px;border-radius:50%;background:#1F5F5A;display:flex;align-items:center;justify-content:center;position:relative}
+.me .dot{position:absolute;top:6px;right:7px;width:9px;height:9px;border-radius:50%;background:var(--acc)}
+.me .av{width:40px;height:40px;border-radius:50%;background:var(--acc);color:var(--pri-d);font-weight:700;display:flex;align-items:center;justify-content:center}
+.me small{display:block;color:#99F6E4;font-size:12px}
+.page{flex:1;padding:28px 40px;display:flex;flex-direction:column;gap:22px;overflow:hidden}
+.ph{display:flex;align-items:flex-end;justify-content:space-between}
+.ph h1{font-size:26px;font-weight:700}.ph p{color:var(--mut);margin-top:2px}
+.box{background:#fff;border-radius:16px;padding:22px;border:1px solid var(--line)}
+.box h2{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;white-space:nowrap}
+.box h2>span:not(.pill){font-size:12.5px;color:var(--pri);font-weight:600}
+.row{display:flex;gap:22px}
+.b{height:42px;padding:0 20px;border-radius:99px;border:1.5px solid var(--line);background:#fff;font-weight:600;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;font-family:inherit;font-size:14px;color:var(--ink)}
+.b.p{background:var(--pri);border-color:var(--pri);color:#fff}
+.b.a{background:var(--acc);border-color:var(--acc);color:var(--pri-d)}
+.pill{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
+.ok{background:var(--ok-l);color:var(--ok)}.lo{background:var(--acc-l);color:#B45309}.ze{background:var(--bad-l);color:var(--bad)}
+.in{background:var(--pri-l);color:var(--pri-d)}.out{background:#FFE4E6;color:#BE123C}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;color:var(--mut);font-weight:500;text-align:left;padding:0 14px 12px}
+td{padding:13px 14px;border-top:1px solid var(--line);white-space:nowrap}
+td.r,th.r{text-align:right}
+.f{display:flex;flex-direction:column;gap:7px}
+.row .f{flex:1}
+.f label{font-size:13px;font-weight:500;color:#334155}
+.f div{height:46px;border-radius:12px;background:#F1F5F4;padding:0 16px;display:flex;align-items:center;border:1.5px solid transparent;white-space:nowrap}
+.f div.foc{border-color:var(--pri);background:#fff}
+.f div.dis{color:var(--mut)}
+/* kpi */
+.k{flex:1;background:#fff;border-radius:16px;padding:20px 22px;border:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.k .t{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:13px}
+.k .i{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.k strong{font-size:30px;font-weight:700}
+.k em{font-style:normal;font-size:12px;font-weight:600}
+.hb{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.hb span:first-child{width:110px;color:#334155;font-size:13px}
+.hb .tr{flex:1;height:14px;border-radius:99px;background:#F1F5F4}
+.hb .tr i{display:block;height:100%;border-radius:99px;background:var(--pri)}
+.hb b{width:40px;text-align:right;font-size:13px}
+.li{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.li .ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.li div{flex:1}.li small{color:var(--mut);font-size:12px;display:block}
+/* login */
+#login{background:var(--pri-d);align-items:center;justify-content:center}
+.circ{position:absolute;border-radius:50%;background:#1F5F5A}
+.lcard{width:460px;background:#fff;border-radius:24px;padding:44px;display:flex;flex-direction:column;gap:18px;position:relative}
+.lcard .brand{color:var(--pri-d);justify-content:center;font-size:22px}
+.lcard h1{font-size:22px;text-align:center;margin-top:6px}.lcard p.s{color:var(--mut);text-align:center;margin-top:-12px}
+.lcard .b{height:50px;justify-content:center;font-size:15px}
+.or{display:flex;align-items:center;gap:12px;color:var(--mut);font-size:12px}.or i{flex:1;height:1px;background:var(--line)}
+.ft{position:absolute;bottom:28px;color:#99F6E4;font-size:12.5px}
+/* overlay */
+.ov{position:absolute;inset:0;background:rgba(15,23,42,.45)}
+.modal{position:absolute;top:140px;left:470px;width:500px;background:#fff;border-radius:20px;padding:30px;display:flex;flex-direction:column;gap:16px}
+.modal h3{font-size:19px;display:flex;justify-content:space-between}
+.seg2{display:flex;gap:16px}
+.seg2 .opt{flex:1;border:2px solid var(--line);border-radius:16px;padding:18px;display:flex;gap:14px;align-items:center;background:#fff}
+.seg2 .opt.on{border-color:var(--pri);background:#F0FDFA}
+.seg2 .opt .ic{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.seg2 small{display:block;color:var(--mut);font-size:12.5px}
+.chips{display:flex;gap:8px}
+.chips span{padding:8px 16px;border-radius:99px;background:#fff;border:1.5px solid var(--line);font-weight:500;font-size:13px;white-space:nowrap}
+.chips span.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.tl{display:flex;gap:16px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+.tl .when{width:90px;color:var(--mut);font-size:12.5px}
+.tl .ic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+.tl div.d{flex:1}.tl small{display:block;color:var(--mut);font-size:12px}
+.tl b.q{font-size:15px;width:70px;text-align:right}
+.side{width:280px;display:flex;flex-direction:column;gap:6px;flex:none}
+.side .it{padding:14px 16px;border-radius:14px;display:flex;gap:12px;align-items:center;background:transparent;border:1.5px solid transparent}
+.side .it.on{background:#fff;border-color:var(--pri)}
+.side .it small{display:block;color:var(--mut);font-size:12px}
+.side .it .ic{width:40px;height:40px;border-radius:12px;background:var(--pri-l);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+.tg{width:46px;height:26px;border-radius:99px;background:var(--pri);position:relative;flex:none}
+.tg i{position:absolute;top:3px;left:23px;width:20px;height:20px;border-radius:50%;background:#fff}
+.tg.off{background:#CBD5E1}.tg.off i{left:3px}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.sr small{display:block;color:var(--mut);font-size:12.5px}
+.mini{flex:1;border-radius:14px;padding:16px 18px;background:#F6F7F5}
+.mini p{font-size:12.5px;color:var(--mut)}.mini b{font-size:21px}
+</style>
+</head>
+<body>
+
+<!-- 1 LOGIN -->
+<section class="screen" id="login">
+  <div class="circ" style="width:520px;height:520px;left:-160px;top:-180px"></div>
+  <div class="circ" style="width:380px;height:380px;right:-100px;bottom:-140px"></div>
+  <div class="circ" style="width:120px;height:120px;right:240px;top:110px;background:#F59E0B;opacity:.9"></div>
+  <div class="lcard">
+    <div class="brand"><b>S</b>SmartStock</div>
+    <h1>Acesse sua conta</h1>
+    <p class="s">Controle de estoque inteligente para o seu negócio</p>
+    <div class="f"><label>E-mail corporativo</label><div class="foc">bruno.oliveira@autopecasdiniz.com.br</div></div>
+    <div class="f"><label>Senha</label><div>●●●●●●●●●</div></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--mut)">☑ Manter conectado</span><span style="color:var(--pri);font-weight:600">Recuperar senha</span></div>
+    <button class="b p">Entrar no SmartStock  →</button>
+    <div class="or"><i></i>ou<i></i></div>
+    <button class="b" style="height:48px;justify-content:center">🔑 Entrar com código de acesso</button>
+  </div>
+  <div class="ft">SmartStock © 2026 · Projeto Integrador – Estágio de Férias DEV</div>
+</section>
+
+<!-- 2 PAINEL -->
+<section class="screen" id="painel">
+  <header class="nav" data-on="painel"></header>
+  <div class="page">
+    <div class="ph"><div><h1>Olá, Bruno 👋</h1><p>Veja como está o estoque da Autopeças Diniz hoje, terça-feira 24/11.</p></div><button class="b a">＋ Registrar movimentação</button></div>
+    <div class="row">
+      <div class="k"><div class="t">Produtos ativos<span class="i" style="background:var(--pri-l)">🧰</span></div><strong>312</strong><em style="color:var(--ok)">+18 no mês</em></div>
+      <div class="k"><div class="t">Valor em estoque<span class="i" style="background:var(--acc-l)">💵</span></div><strong>R$ 94,7 mil</strong><em style="color:var(--ok)">+4,2% vs. outubro</em></div>
+      <div class="k"><div class="t">Precisam de reposição<span class="i" style="background:var(--bad-l)">🚨</span></div><strong>9</strong><em style="color:var(--bad)">2 zerados</em></div>
+      <div class="k"><div class="t">Giro do estoque<span class="i" style="background:#E0E7FF">♻️</span></div><strong>1,8x</strong><em style="color:var(--mut)">média dos últimos 30 dias</em></div>
+    </div>
+    <div class="row" style="flex:1;min-height:0">
+      <div class="box" style="flex:1.1">
+        <h2>Saídas por categoria (novembro) <span>Ver relatório →</span></h2>
+        <div class="hb"><span>Lubrificantes</span><div class="tr"><i style="width:92%"></i></div><b>412</b></div>
+        <div class="hb"><span>Filtros</span><div class="tr"><i style="width:74%"></i></div><b>331</b></div>
+        <div class="hb"><span>Ignição</span><div class="tr"><i style="width:58%"></i></div><b>260</b></div>
+        <div class="hb"><span>Freios</span><div class="tr"><i style="width:41%"></i></div><b>184</b></div>
+        <div class="hb"><span>Elétrica</span><div class="tr"><i style="width:23%"></i></div><b>103</b></div>
+        <div class="hb"><span>Acessórios</span><div class="tr"><i style="width:15%;background:var(--acc)"></i></div><b>67</b></div>
+        <div class="row" style="gap:14px;margin-top:22px">
+          <div class="mini"><p>Entradas no mês</p><b style="color:var(--pri)">⬇ 1.486 un.</b></div>
+          <div class="mini"><p>Saídas no mês</p><b style="color:#BE123C">⬆ 1.357 un.</b></div>
+        </div>
+      </div>
+      <div class="box" style="flex:1">
+        <h2>Precisam de reposição <span>Ver todos (9) →</span></h2>
+        <div class="li"><span class="ic" style="background:var(--bad-l)">🧽</span><div><b>Palheta Limpador Bosch 21"</b><small>Acessórios · mínimo 12</small></div><span class="pill ze">0 un. · Zerado</span></div>
+        <div class="li"><span class="ic" style="background:var(--bad-l)">⚙️</span><div><b>Correia Dentada Gates</b><small>Motor · mínimo 6</small></div><span class="pill ze">0 un. · Zerado</span></div>
+        <div class="li"><span class="ic" style="background:var(--acc-l)">🛢️</span><div><b>Óleo Motor 5W30 Sintético 1L</b><small>Lubrificantes · mínimo 24</small></div><span class="pill lo">19 un. · Baixo</span></div>
+        <div class="li"><span class="ic" style="background:var(--acc-l)">🔩</span><div><b>Filtro de Óleo Tecfil PSL55</b><small>Filtros · mínimo 15</small></div><span class="pill lo">8 un. · Baixo</span></div>
+        <div class="li"><span class="ic" style="background:var(--acc-l)">💡</span><div><b>Lâmpada H4 Philips</b><small>Elétrica · mínimo 20</small></div><span class="pill lo">14 un. · Baixo</span></div>
+        <div style="margin-top:auto;background:var(--pri-l);border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:center;margin-top:14px"><span style="font-size:20px">🤖</span><span style="font-size:13px;color:var(--pri-d)"><b>Em breve:</b> o assistente de IA vai sugerir quanto comprar de cada item.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 PRODUTOS -->
+<section class="screen" id="produtos">
+  <header class="nav" data-on="produtos"></header>
+  <div class="page">
+    <div class="ph"><div><h1>Produtos</h1><p>312 itens cadastrados em 8 categorias</p></div><button class="b p">＋ Novo produto</button></div>
+    <div style="display:flex;gap:14px;align-items:center">
+      <div class="f" style="width:360px"><div style="background:#fff;border:1.5px solid var(--line)">🔎&nbsp; Buscar por nome ou código...</div></div>
+      <div class="chips"><span class="on">Todos 312</span><span>OK 303</span><span>Baixo 7</span><span>Zerado 2</span></div>
+      <button class="b" style="margin-left:auto">Categoria ▾</button><button class="b">⇅ Ordenar</button>
+    </div>
+    <div class="box" style="flex:1;padding:18px 8px 0">
+      <table>
+        <tr><th>CÓD.</th><th>PRODUTO</th><th>CATEGORIA</th><th class="r">PREÇO</th><th class="r">EM ESTOQUE</th><th class="r">MÍNIMO</th><th>SITUAÇÃO</th><th>CADASTRO</th><th></th></tr>
+        <tr><td>P-0001</td><td><b>Óleo Motor 5W30 Sintético 1L</b></td><td>Lubrificantes</td><td class="r">R$ 42,90</td><td class="r">19</td><td class="r">24</td><td><span class="pill lo">Baixo</span></td><td>03/11/2026</td><td style="color:var(--mut)">✎ &nbsp;🗑</td></tr>
+        <tr><td>P-0002</td><td><b>Filtro de Óleo Tecfil PSL55</b></td><td>Filtros</td><td class="r">R$ 27,50</td><td class="r">8</td><td class="r">15</td><td><span class="pill lo">Baixo</span></td><td>03/11/2026</td><td style="color:var(--mut)">✎ &nbsp;🗑</td></tr>
+        <tr><td>P-0003</td><td><b>Pastilha de Freio Cobreq</b></td><td>Freios</td><td class="r">R$ 89,00</td><td class="r">14</td><td class="r">10</td><td><span class="pill ok">OK</span></td><td>05/11/2026</td><td style="color:var(--mut)">✎ &nbsp;🗑</td></tr>
+        <tr><td>P-0004</td><td><b>Vela de Ignição NGK</b></td><td>Ignição</td><td class="r">R$ 21,90</td><td class="r">65</td><td class="r">40</td><td><span class="pill ok">OK</span></td><td>05/11/2026</td><td style="color:var(--mut)">✎ &nbsp;🗑</td></tr>
+        <tr><td>P-0005</td><td><b>Palheta Limpador Bosch 21"</b></td><td>Acessórios</td><td class="r">R$ 54,90</td><td class="r">0</td><td class="r">12</td><td><span class="pill ze">Zerado</span></td><td>08/11/2026</td><td style="color:var(--mut)">✎ &nbsp;🗑</td></tr>
+        <tr><td>P-0006</td><td><b>Bateria Moura 60Ah</b></td><td>Elétrica</td><td class="r">R$ 589,00</td><td class="r">5</td><td class="r">4</td><td><span class="pill ok">OK</span></td><td>10/11/2026</td><td style="color:var(--mut)">✎ &nbsp;🗑</td></tr>
+        <tr><td>P-0007</td><td><b>Amortecedor Cofap Dianteiro</b></td><td>Suspensão</td><td class="r">R$ 312,00</td><td class="r">11</td><td class="r">4</td><td><span class="pill ok">OK</span></td><td>12/11/2026</td><td style="color:var(--mut)">✎ &nbsp;🗑</td></tr>
+        <tr><td>P-0008</td><td><b>Correia Dentada Gates</b></td><td>Motor</td><td class="r">R$ 118,40</td><td class="r">0</td><td class="r">6</td><td><span class="pill ze">Zerado</span></td><td>18/11/2026</td><td style="color:var(--mut)">✎ &nbsp;🗑</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="ov"></div>
+  <div class="modal">
+    <h3>Novo produto <span style="color:var(--mut)">✕</span></h3>
+    <div class="f"><label>Nome do produto</label><div class="foc">Disco de Freio Fremax Ventilado</div></div>
+    <div class="row" style="gap:14px"><div class="f"><label>Categoria</label><div>Freios ▾</div></div><div class="f"><label>Preço unitário</label><div>R$ 164,90</div></div></div>
+    <div class="row" style="gap:14px"><div class="f"><label>Quantidade inicial</label><div>16</div></div><div class="f"><label>Estoque mínimo</label><div>6</div></div></div>
+    <div style="background:var(--pri-l);color:var(--pri-d);border-radius:12px;padding:12px 14px;font-size:13px">ℹ️ Depois do cadastro, o saldo só muda por movimentações.</div>
+    <div style="display:flex;gap:12px;justify-content:flex-end"><button class="b">Cancelar</button><button class="b p">Salvar produto</button></div>
+  </div>
+</section>
+
+<!-- 4 MOVIMENTAÇÕES -->
+<section class="screen" id="movimentacoes">
+  <header class="nav" data-on="movimentacoes"></header>
+  <div class="page">
+    <div class="ph"><div><h1>Movimentações</h1><p>Registre o que entra e o que sai do estoque</p></div></div>
+    <div class="box">
+      <div class="seg2" style="margin-bottom:20px">
+        <div class="opt"><span class="ic" style="background:var(--pri-l)">📥</span><div><b>Entrada</b><small>Chegada de mercadoria do fornecedor</small></div></div>
+        <div class="opt on"><span class="ic" style="background:#FFE4E6">📤</span><div><b>Saída</b><small>Venda, uso na oficina ou perda</small></div></div>
+      </div>
+      <div class="row" style="gap:16px;align-items:flex-end">
+        <div class="f" style="flex:2.2"><label>Produto</label><div class="foc">🔎&nbsp; Óleo Motor 5W30 Sintético 1L</div></div>
+        <div class="f" style="flex:.8"><label>Quantidade</label><div>5</div></div>
+        <div class="f" style="flex:1.4"><label>Motivo</label><div>Venda balcão ▾</div></div>
+        <div class="f" style="flex:1.2"><label>Data</label><div>24/11/2026</div></div>
+        <button class="b p" style="height:46px">Confirmar saída</button>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;align-items:center;background:var(--acc-l);color:#92400E;border-radius:12px;padding:12px 16px;font-size:13px">⚠️ Saldo atual: <b>19 un.</b> → após a saída: <b>14 un.</b> · abaixo do mínimo (24): um alerta de reposição será gerado.</div>
+    </div>
+    <div class="box" style="flex:1;min-height:0">
+      <h2>Linha do tempo <span style="display:flex;gap:8px"><span class="pill in">⬇ 1.486 entradas</span><span class="pill out">⬆ 1.357 saídas</span></span></h2>
+      <div class="tl"><span class="when">Hoje 14:02</span><span class="ic" style="background:#FFE4E6">📤</span><div class="d"><b>Pastilha de Freio Cobreq</b><small>Uso na oficina · por Diego Santos</small></div><span class="pill out">Saída</span><b class="q" style="color:#BE123C">−2</b></div>
+      <div class="tl"><span class="when">Hoje 11:37</span><span class="ic" style="background:var(--pri-l)">📥</span><div class="d"><b>Vela de Ignição NGK</b><small>NF 88.214 · Distribuidora Rota Sul · por Bruno de Oliveira</small></div><span class="pill in">Entrada</span><b class="q" style="color:var(--pri)">+50</b></div>
+      <div class="tl"><span class="when">Hoje 09:15</span><span class="ic" style="background:#FFE4E6">📤</span><div class="d"><b>Palheta Limpador Bosch 21"</b><small>Venda balcão · por Diego Santos</small></div><span class="pill out">Saída</span><b class="q" style="color:#BE123C">−2</b></div>
+      <div class="tl"><span class="when">Ontem 17:48</span><span class="ic" style="background:#FFE4E6">📤</span><div class="d"><b>Bateria Moura 60Ah</b><small>Venda balcão · por Diego Santos</small></div><span class="pill out">Saída</span><b class="q" style="color:#BE123C">−1</b></div>
+      <div class="tl"><span class="when">Ontem 10:20</span><span class="ic" style="background:var(--pri-l)">📥</span><div class="d"><b>Filtro de Óleo Tecfil PSL55</b><small>NF 88.102 · Tecfil Distribuição · por Bruno de Oliveira</small></div><span class="pill in">Entrada</span><b class="q" style="color:var(--pri)">+30</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 RELATÓRIOS -->
+<section class="screen" id="relatorios">
+  <header class="nav" data-on="relatorios"></header>
+  <div class="page" style="flex-direction:row">
+    <div class="side">
+      <h1 style="font-size:26px;margin-bottom:4px">Relatórios</h1><p style="color:var(--mut);margin-bottom:14px">Escolha o tipo de relatório</p>
+      <div class="it on"><span class="ic">📦</span><div><b>Inventário atual</b><small>Saldo e valor por produto</small></div></div>
+      <div class="it"><span class="ic">🔄</span><div><b>Movimentações</b><small>Entradas e saídas no período</small></div></div>
+      <div class="it"><span class="ic">🛒</span><div><b>Lista de reposição</b><small>O que comprar e quanto</small></div></div>
+      <div class="it"><span class="ic">🐢</span><div><b>Itens parados</b><small>Sem saída há 60+ dias</small></div></div>
+      <div class="it"><span class="ic">🏷️</span><div><b>Por categoria</b><small>Participação no valor total</small></div></div>
+    </div>
+    <div class="box" style="flex:1;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div><h2 style="margin:0">Inventário atual</h2><p style="color:var(--mut);font-size:13px">Gerado em 24/11/2026 às 15:10 · todas as categorias</p></div>
+        <button class="b" style="margin-left:auto">📅 Período ▾</button><button class="b">⬇ PDF</button><button class="b">⬇ Excel</button><button class="b p">Atualizar</button>
+      </div>
+      <div class="row" style="gap:14px">
+        <div class="mini"><p>Itens em estoque</p><b>4.218 un.</b></div>
+        <div class="mini"><p>Valor total</p><b>R$ 94.716,30</b></div>
+        <div class="mini"><p>Ticket médio por item</p><b>R$ 22,45</b></div>
+        <div class="mini" style="background:var(--acc-l)"><p>Abaixo do mínimo</p><b style="color:#B45309">9 itens</b></div>
+      </div>
+      <table>
+        <tr><th>PRODUTO</th><th>CATEGORIA</th><th class="r">SALDO</th><th class="r">PREÇO UNIT.</th><th class="r">VALOR TOTAL</th><th>SITUAÇÃO</th></tr>
+        <tr><td><b>Bateria Moura 60Ah</b></td><td>Elétrica</td><td class="r">5</td><td class="r">R$ 589,00</td><td class="r"><b>R$ 2.945,00</b></td><td><span class="pill ok">OK</span></td></tr>
+        <tr><td><b>Amortecedor Cofap Dianteiro</b></td><td>Suspensão</td><td class="r">11</td><td class="r">R$ 312,00</td><td class="r"><b>R$ 3.432,00</b></td><td><span class="pill ok">OK</span></td></tr>
+        <tr><td><b>Vela de Ignição NGK</b></td><td>Ignição</td><td class="r">65</td><td class="r">R$ 21,90</td><td class="r"><b>R$ 1.423,50</b></td><td><span class="pill ok">OK</span></td></tr>
+        <tr><td><b>Pastilha de Freio Cobreq</b></td><td>Freios</td><td class="r">14</td><td class="r">R$ 89,00</td><td class="r"><b>R$ 1.246,00</b></td><td><span class="pill ok">OK</span></td></tr>
+        <tr><td><b>Óleo Motor 5W30 Sintético 1L</b></td><td>Lubrificantes</td><td class="r">19</td><td class="r">R$ 42,90</td><td class="r"><b>R$ 815,10</b></td><td><span class="pill lo">Baixo</span></td></tr>
+        <tr><td><b>Filtro de Óleo Tecfil PSL55</b></td><td>Filtros</td><td class="r">8</td><td class="r">R$ 27,50</td><td class="r"><b>R$ 220,00</b></td><td><span class="pill lo">Baixo</span></td></tr>
+      </table>
+      <div style="margin-top:auto;display:flex;justify-content:space-between;color:var(--mut);font-size:13px"><span>Exibindo 6 de 312 produtos</span><span style="color:var(--pri);font-weight:600">Carregar mais ↓</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 CONFIGURAÇÕES -->
+<section class="screen" id="configuracoes">
+  <header class="nav" data-on="configuracoes"></header>
+  <div class="page" style="flex-direction:row">
+    <div class="side">
+      <h1 style="font-size:26px;margin-bottom:14px">Configurações</h1>
+      <div class="it on"><span class="ic">👤</span><div><b>Meu perfil</b><small>Nome, foto e senha</small></div></div>
+      <div class="it"><span class="ic">🏢</span><div><b>Empresa</b><small>Dados e categorias</small></div></div>
+      <div class="it"><span class="ic">👥</span><div><b>Equipe</b><small>Usuários e permissões</small></div></div>
+      <div class="it"><span class="ic">🔔</span><div><b>Alertas</b><small>Quando e como avisar</small></div></div>
+      <div class="it"><span class="ic">🔌</span><div><b>Integrações</b><small>N8N e assistente de IA</small></div></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:22px">
+      <div class="box">
+        <h2>Meu perfil</h2>
+        <div style="display:flex;gap:28px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:140px"><div style="width:96px;height:96px;border-radius:50%;background:var(--acc);color:var(--pri-d);font-size:32px;font-weight:700;display:flex;align-items:center;justify-content:center">BO</div><span style="color:var(--pri);font-weight:600;font-size:13px">Trocar foto</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:14px">
+            <div class="row" style="gap:14px"><div class="f"><label>Nome completo</label><div>Bruno de Oliveira</div></div><div class="f"><label>Cargo</label><div>Gestor de Estoque</div></div></div>
+            <div class="row" style="gap:14px"><div class="f"><label>E-mail</label><div>bruno.oliveira@autopecasdiniz.com.br</div></div><div class="f"><label>Perfil de acesso</label><div class="dis">Gestor (acesso total)</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="row" style="flex:1;min-height:0">
+        <div class="box" style="flex:1">
+          <h2>Alertas de reposição</h2>
+          <div class="sr"><div><b>Avisar quando atingir o mínimo</b><small>Gera alerta no painel</small></div><span class="tg"><i></i></span></div>
+          <div class="sr"><div><b>Enviar por e-mail</b><small>compras@autopecasdiniz.com.br</small></div><span class="tg"><i></i></span></div>
+          <div class="sr"><div><b>Enviar pelo Telegram</b><small>Via fluxo do N8N</small></div><span class="tg off"><i></i></span></div>
+          <div class="sr"><div><b>Resumo diário às 7h</b><small>Lista do que está acabando</small></div><span class="tg"><i></i></span></div>
+        </div>
+        <div class="box" style="flex:1;display:flex;flex-direction:column">
+          <h2>Integrações <span class="pill lo">Dia 9</span></h2>
+          <div class="sr"><div><b>🔁 N8N</b><small>URL do webhook ainda não configurada</small></div><button class="b" style="height:36px">Conectar</button></div>
+          <div class="sr"><div><b>🧠 Assistente de IA</b><small>Perguntas em linguagem natural</small></div><button class="b" style="height:36px">Conectar</button></div>
+          <div class="sr"><div><b>🔑 Chave da API</b><small>sk-••••••••••••3f9a</small></div><span style="color:var(--pri);font-weight:600;font-size:13px">Gerar nova</span></div>
+          <button class="b p" style="margin-top:auto;justify-content:center;height:48px">Salvar alterações</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const T=[["painel","Painel"],["produtos","Produtos"],["movimentacoes","Movimentações"],["relatorios","Relatórios"],["configuracoes","Configurações"]];
+document.querySelectorAll(".nav").forEach(n=>{n.innerHTML='<div class="brand"><b>S</b>SmartStock</div><nav class="tabs">'+T.map(([i,t])=>`<a href="#${i}" class="${n.dataset.on===i?'on':''}">${t}</a>`).join('')+'</nav><div class="me"><span class="bel">🔔<i class="dot"></i></span><span class="av">BO</span><div><b style="font-size:13.5px">Bruno de Oliveira</b><small>Gestor</small></div></div>';});
+function show(){const id=(location.hash||"#login").slice(1);document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===id));}
+addEventListener("hashchange",show);show();
+</script>
+</body>
+</html>

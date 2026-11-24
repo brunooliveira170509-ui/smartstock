@@ -1,0 +1,26 @@
+digraph DER {
+  graph [rankdir=LR, bgcolor="white", pad=0.4, nodesep=0.8, fontname="Poppins"];
+  node  [shape=plaintext, fontname="Poppins"];
+  edge  [fontname="Poppins", fontsize=11, color="#0F766E", penwidth=1.6];
+  produto [label=<
+   <table border="0" cellborder="1" cellspacing="0" cellpadding="7" color="#94A3B8">
+    <tr><td colspan="3" bgcolor="#0F766E"><font color="white"><b>PRODUTO</b></font></td></tr>
+    <tr><td bgcolor="#CCFBF1"><b>PK</b></td><td align="left" port="id"><b>id</b></td><td align="left" port="idt"><font color="#64748B">SERIAL</font></td></tr>
+    <tr><td></td><td align="left">nome</td><td align="left"><font color="#64748B">VARCHAR(150)</font></td></tr>
+    <tr><td></td><td align="left">categoria</td><td align="left"><font color="#64748B">VARCHAR(80)</font></td></tr>
+    <tr><td></td><td align="left">quantidade</td><td align="left"><font color="#64748B">INTEGER</font></td></tr>
+    <tr><td></td><td align="left">estoque_minimo</td><td align="left"><font color="#64748B">INTEGER</font></td></tr>
+    <tr><td></td><td align="left">preco</td><td align="left"><font color="#64748B">NUMERIC(12,2)</font></td></tr>
+    <tr><td></td><td align="left">data_cadastro</td><td align="left"><font color="#64748B">TIMESTAMP</font></td></tr>
+   </table>>];
+  mov [label=<
+   <table border="0" cellborder="1" cellspacing="0" cellpadding="7" color="#94A3B8">
+    <tr><td colspan="3" bgcolor="#F59E0B"><b>MOVIMENTACAO</b></td></tr>
+    <tr><td bgcolor="#CCFBF1"><b>PK</b></td><td align="left"><b>id</b></td><td align="left"><font color="#64748B">SERIAL</font></td></tr>
+    <tr><td bgcolor="#FEF3C7" port="fkc"><b>FK</b></td><td align="left" port="fk">produto_id</td><td align="left"><font color="#64748B">INTEGER</font></td></tr>
+    <tr><td></td><td align="left">tipo</td><td align="left"><font color="#64748B">ENTRADA | SAIDA</font></td></tr>
+    <tr><td></td><td align="left">quantidade</td><td align="left"><font color="#64748B">INTEGER</font></td></tr>
+    <tr><td></td><td align="left">data</td><td align="left"><font color="#64748B">TIMESTAMP</font></td></tr>
+   </table>>];
+  produto:idt:e -> mov:fkc:w [dir=both, arrowtail=teetee, arrowhead=crowodot, label="  1 : N  \n registra  "];
+}
