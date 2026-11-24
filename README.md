@@ -2,7 +2,7 @@
 <p align="center"><b>Plataforma Inteligente de Gestão de Estoque</b><br>
 Projeto Integrador · Programa de Estágio de Férias – Desenvolvimento de Software<br>
 Atividade 6 – Planejamento, Design e Arquitetura da Solução</p>
-<p align="center">Desenvolvido por <b>Bruno de Oliveira</b> (<a href="https://github.com/brunooliveira170509">@brunooliveira170509</a>)</p>
+<p align="center">Desenvolvido por <b>Bruno de Oliveira</b> (<a href="https://github.com/brunooliveira170509-ui">@brunooliveira170509-ui</a>)</p>
 
 ---
 
